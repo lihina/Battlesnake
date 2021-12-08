@@ -24,9 +24,66 @@ class Controller {
 
     @PostMapping("/move")
     fun move(moveParams: MoveParams): MoveResponse {
-        System.out.println("moving!!!!!!!")
-        return MoveResponse("up", "Moving uppppp")
+        if (canMoveTo(moveParams.you, moveParams.board.snakes, moveParams.board, getLeftOfLoc(moveParams.you.head))) {
+            return MoveResponse("left", "Moving left!!")
+        }
+
+        if (canMoveTo(moveParams.you, moveParams.board.snakes, moveParams.board, getRightOfLoc(moveParams.you.head))) {
+            return MoveResponse("right", "Moving right!!")
+        }
+
+        if (canMoveTo(moveParams.you, moveParams.board.snakes, moveParams.board, getDownOfLoc(moveParams.you.head))) {
+            return MoveResponse("down", "Moving down!!")
+        }
+
+        return MoveResponse("up", "Moving up!!")
     }
+
+    fun canMoveTo(meSnake: BattleSnake, otherSnakes: List<BattleSnake>, board: Board, dest: Coordinate): Boolean {
+        return !isOtherSnakeHere(otherSnakes, dest) && !isBorderHere(board, dest) || !isMeHere(meSnake, dest)
+    }
+
+    fun isOtherSnakeHere(otherSnakes: List<BattleSnake>, here: Coordinate): Boolean {
+        return otherSnakes.asSequence()
+                .map { isHere(it, here) }
+                .first() != null
+    }
+
+    fun isMeHere(battleSnake: BattleSnake, here: Coordinate): Boolean {
+        return isHere(battleSnake, here)
+    }
+
+    fun isBorderHere(board: Board, here: Coordinate): Boolean {
+        return board.height == here.y || board.width == here.x
+    }
+
+    fun isHere(battleSnake: BattleSnake, here: Coordinate): Boolean {
+        return battleSnake.body.asSequence()
+                .map{isSameLoc(it, here)}
+                .first() != null
+
+    }
+
+    fun isSameLoc(loc1: Coordinate, loc2: Coordinate): Boolean{
+        return loc1.x == loc2.x && loc1.y == loc2.y
+    }
+
+    fun getLeftOfLoc(loc: Coordinate): Coordinate {
+        return Coordinate(loc.x-1, loc.y)
+    }
+
+    fun getRightOfLoc(loc: Coordinate): Coordinate {
+        return Coordinate(loc.x+1, loc.y)
+    }
+
+    fun getUpOfLoc(loc: Coordinate): Coordinate {
+        return Coordinate(loc.x, loc.y + 1)
+    }
+
+    fun getDownOfLoc(loc: Coordinate): Coordinate {
+        return Coordinate(loc.x, loc.y - 1)
+    }
+
 
     data class GetBattleSnakeDTO(val apiversion: String="1", val author: String="lihi", val color: String="#888888", val head: Coordinate, val tail: Coordinate, val version: String="0.0.1-beta")
     data class MoveResponse(val move: String="up", val shout: String="Moving up!")
