@@ -40,4 +40,5 @@ class Controller {
     data class BattleSnake(val id: String, val name: String, val health: String, val body: List<Coordinate>, val latency: Int, val head: Coordinate, val length: Int, val shout: String, val squad: Int)
 
 
+
 }
